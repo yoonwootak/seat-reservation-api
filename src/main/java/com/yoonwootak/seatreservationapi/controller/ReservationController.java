@@ -3,39 +3,40 @@ package com.yoonwootak.seatreservationapi.controller;
 import com.yoonwootak.seatreservationapi.domain.Reservation;
 import com.yoonwootak.seatreservationapi.dto.ReservationCreateRequest;
 import com.yoonwootak.seatreservationapi.repository.ReservationRepository;
+import com.yoonwootak.seatreservationapi.service.ReservationService;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/reservations")
 public class ReservationController {
-    private ReservationRepository reservationRepository;
+    private final ReservationService reservationService;
 
-    public ReservationController(ReservationRepository reservationRepository) {
-        this.reservationRepository = reservationRepository;
+    public ReservationController(ReservationRepository reservationRepository, ReservationService reservationService) {
+        this.reservationService = reservationService;
     }
 
     @PostMapping
     public ResponseEntity<?> create(@RequestBody ReservationCreateRequest req) {
-        Reservation r = new Reservation();
-        r.setEventId(req.getEventId());
-        r.setSectionId(req.getSectionId());
-        r.setSeatId(req.getSeatId());
-        r.setStatus("PENDING_PAYMENT");
-        r.setCreatedAt(LocalDateTime.now());
-        // 이때 r의 id는 db에서 insert 될때 자동생성 되기 때문에 save(insert) 시도를 통해서 id를 채워 넣어 줘야함
-
         try {
-            Reservation saved = reservationRepository.save(r); // 이때 예외가 발생하지 않는 다면 바로 return. 예외 발생 시 catch문으로
+            Reservation saved = reservationService.createReservation(req);
             return ResponseEntity.ok().body(saved);
         } catch (DataIntegrityViolationException e) {
             return ResponseEntity.status(409).body("이미 예약된 좌석입니다.");
         }
+    }
+
+    // 동시성 테스트용 예약 api : Request body 에서 요청을 받는게 아닌 테스트용 요청을 직접 만들어서 return
+    @PostMapping("/test/{seatId}")
+    public ResponseEntity<?> createTest(@PathVariable Long seatId){
+        ReservationCreateRequest req = new ReservationCreateRequest();
+        req.setEventId(1L);
+        req.setSectionId(1L);
+        req.setSeatId(seatId);
+        return create(req);
     }
 }
