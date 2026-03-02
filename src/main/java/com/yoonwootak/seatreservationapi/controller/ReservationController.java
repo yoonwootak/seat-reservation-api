@@ -2,21 +2,17 @@ package com.yoonwootak.seatreservationapi.controller;
 
 import com.yoonwootak.seatreservationapi.domain.Reservation;
 import com.yoonwootak.seatreservationapi.dto.ReservationCreateRequest;
-import com.yoonwootak.seatreservationapi.repository.ReservationRepository;
 import com.yoonwootak.seatreservationapi.service.ReservationService;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/reservations")
 public class ReservationController {
     private final ReservationService reservationService;
 
-    public ReservationController(ReservationRepository reservationRepository, ReservationService reservationService) {
+    public ReservationController(ReservationService reservationService) {
         this.reservationService = reservationService;
     }
 
@@ -38,5 +34,11 @@ public class ReservationController {
         req.setSectionId(1L);
         req.setSeatId(seatId);
         return create(req);
+    }
+
+    @PostMapping("/{id}/confirm")
+    public ResponseEntity<?> confirm(@PathVariable Long id){
+        Reservation updated = reservationService.confirmReservation(id);
+        return ResponseEntity.ok().body(updated);
     }
 }
