@@ -7,11 +7,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Entity
-@Table(
-        name = "reservations",
-        uniqueConstraints = {
-                @UniqueConstraint(name = "uk_reservations_seat", columnNames = {"seatId"})
-        })
+@Table(name = "reservations")
 public class Reservation {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -32,6 +28,9 @@ public class Reservation {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "confirmed_seat_id", unique = true)
+    private Long confirmedSeatId;
+
     protected Reservation() {} // 기본 생성자
 
     public Reservation(Long eventId, Long sectionId, Long seatId) {
@@ -49,6 +48,7 @@ public class Reservation {
             throw new IllegalStateException("취소된 예약은 확정할 수 없습니다.");
         }
         this.status = ReservationStatus.CONFIRMED;
+        this.confirmedSeatId = this.seatId;
     }
 
     public void cancel() {
@@ -59,6 +59,7 @@ public class Reservation {
             throw new IllegalStateException("확정된 예약은 취소할 수 없습니다."); // 확정된 예약 취소 구현 필요
         }
         this.status = ReservationStatus.CANCELLED;
+        this.confirmedSeatId = null;
     }
 
     @PrePersist

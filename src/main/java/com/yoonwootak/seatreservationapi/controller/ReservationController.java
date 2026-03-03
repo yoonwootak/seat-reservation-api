@@ -38,7 +38,11 @@ public class ReservationController {
 
     @PostMapping("/{id}/confirm")
     public ResponseEntity<?> confirm(@PathVariable Long id){
-        Reservation updated = reservationService.confirmReservation(id);
-        return ResponseEntity.ok().body(updated);
+        try {
+            Reservation updated = reservationService.confirmReservation(id);
+            return ResponseEntity.ok().body(updated);
+        } catch (DataIntegrityViolationException e) {
+            return ResponseEntity.status(409).body("이미 다른 사용자가 결제를 완료 했습니다.");
+        }
     }
 }

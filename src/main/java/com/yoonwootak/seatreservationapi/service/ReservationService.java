@@ -18,7 +18,7 @@ public class ReservationService {
     public Reservation createReservation(ReservationCreateRequest req) {
         Reservation r = new Reservation(req.getEventId(), req.getSectionId(), req.getSeatId());
 
-        return reservationRepository.save(r); // 이때 예외가 발생하지 않는 다면 바로 return. 예외 발생 시 catch문으로
+        return reservationRepository.save(r);
     }
 
     @Transactional
@@ -27,6 +27,7 @@ public class ReservationService {
                 .orElseThrow(() -> new IllegalArgumentException("예약을 찾을 수 없습니다. id=" + reservationId));
 
         r.confirm();
+        reservationRepository.flush();
         return r;
     }
 }
