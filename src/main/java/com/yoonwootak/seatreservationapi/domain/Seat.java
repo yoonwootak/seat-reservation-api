@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -34,6 +35,8 @@ public class Seat {
     private String holdToken;
 
     public void hold(String token, int minutes) {
+        releaseIfExpired(); // 선점 만료된 좌석이면 먼저 풀고 시작
+
         if (this.status == SeatStatus.SOLD) {
             throw new IllegalStateException("이미 판매된 좌석입니다.");
         }
@@ -49,18 +52,36 @@ public class Seat {
     }
 
     public void confirm(String token) {
+        if (isHoldExpired()) { // 좌석 선점 만료 상태이면
+            releaseIfExpired(); // 좌석 선점 해제
+            throw new IllegalStateException("좌석 선점 시간이 만료되었습니다.");
+        }
+
         if (this.status != SeatStatus.HELD) {
             throw new IllegalStateException("좌석 선점 상태가 아닙니다.");
         }
-        if (!this.holdToken.equals(token)) {
+        if (!Objects.equals(this.holdToken, token)) {
             throw new IllegalStateException("좌석 선점 토큰이 일치하지 않습니다.");
-        }
-        if (this.holdExpiresAt.isBefore(LocalDateTime.now())) {
-            throw new IllegalStateException("좌석 선점 시간이 만료되었습니다.");
         }
 
         this.status = SeatStatus.SOLD;
         this.holdToken = null;
         this.holdExpiresAt = null;
+    }
+
+    // 좌석 선점 만료 인지
+    public boolean isHoldExpired() {
+        return this.status == SeatStatus.HELD
+                && this.holdExpiresAt != null
+                && this.holdExpiresAt.isBefore(LocalDateTime.now());
+    }
+
+    // 만약 만료면 해제
+    public void releaseIfExpired() {
+        if (isHoldExpired()) {
+            this.status = SeatStatus.AVAILABLE;
+            this.holdToken = null;
+            this.holdExpiresAt = null;
+        }
     }
 }
