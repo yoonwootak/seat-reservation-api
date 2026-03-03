@@ -20,14 +20,4 @@ public class ReservationService {
 
         return reservationRepository.save(r);
     }
-
-    @Transactional
-    public Reservation confirmReservation(Long reservationId) {
-        Reservation r = reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new IllegalArgumentException("예약을 찾을 수 없습니다. id=" + reservationId));
-
-        r.confirm();
-        reservationRepository.flush();
-        return r;
-    }
 }

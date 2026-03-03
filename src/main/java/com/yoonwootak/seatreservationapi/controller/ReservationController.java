@@ -35,14 +35,4 @@ public class ReservationController {
         req.setSeatId(seatId);
         return create(req);
     }
-
-    @PostMapping("/{id}/confirm")
-    public ResponseEntity<?> confirm(@PathVariable Long id){
-        try {
-            Reservation updated = reservationService.confirmReservation(id);
-            return ResponseEntity.ok().body(updated);
-        } catch (DataIntegrityViolationException e) {
-            return ResponseEntity.status(409).body("이미 다른 사용자가 결제를 완료 했습니다.");
-        }
-    }
 }

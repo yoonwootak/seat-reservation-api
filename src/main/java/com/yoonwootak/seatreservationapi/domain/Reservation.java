@@ -23,13 +23,10 @@ public class Reservation {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ReservationStatus status; // PENDING_PAYMENT, CONFIRMED, CANCELLED
+    private ReservationStatus status; // PENDING_PAYMENT, CANCELLED
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
-
-    @Column(name = "confirmed_seat_id", unique = true)
-    private Long confirmedSeatId;
 
     protected Reservation() {} // 기본 생성자
 
@@ -40,27 +37,17 @@ public class Reservation {
         this.status = ReservationStatus.PENDING_PAYMENT;
     }
 
-    public void confirm() {
-        if (this.status == ReservationStatus.CONFIRMED) {
-            throw new IllegalStateException("이미 확정된 예약입니다.");
-        }
-        if (this.status == ReservationStatus.CANCELLED) {
-            throw new IllegalStateException("취소된 예약은 확정할 수 없습니다.");
-        }
-        this.status = ReservationStatus.CONFIRMED;
-        this.confirmedSeatId = this.seatId;
-    }
-
-    public void cancel() {
-        if (this.status == ReservationStatus.CANCELLED) {
-            throw new IllegalStateException("이미 취소된 예약입니다.");
-        }
-        if (this.status == ReservationStatus.CONFIRMED) {
-            throw new IllegalStateException("확정된 예약은 취소할 수 없습니다."); // 확정된 예약 취소 구현 필요
-        }
-        this.status = ReservationStatus.CANCELLED;
-        this.confirmedSeatId = null;
-    }
+// TODO: 예약 취소 기능 추후 구현 예정
+//    public void cancel() {
+//        if (this.status == ReservationStatus.CANCELLED) {
+//            throw new IllegalStateException("이미 취소된 예약입니다.");
+//        }
+//        if (this.status == ReservationStatus.CONFIRMED) {
+//            throw new IllegalStateException("확정된 예약은 취소할 수 없습니다."); // 확정된 예약 취소 구현 필요
+//        }
+//        this.status = ReservationStatus.CANCELLED;
+//        this.confirmedSeatId = null;
+//    }
 
     @PrePersist
     private void prePersist() {
