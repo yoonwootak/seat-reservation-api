@@ -26,7 +26,7 @@ public class SeatController {
         List<Seat> seats = seatRepository.findBySectionId(sectionId);
 
         return seats.stream()
-                .map(s -> new SeatResponse(s.getId(), s.getSeatNo(), true))
+                .map(s -> new SeatResponse(s.getId(), s.getSeatNo(), s.getStatus()))
                 .toList();
     }
 

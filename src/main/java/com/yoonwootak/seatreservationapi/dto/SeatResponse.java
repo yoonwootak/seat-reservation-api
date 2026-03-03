@@ -1,5 +1,6 @@
 package com.yoonwootak.seatreservationapi.dto;
 
+import com.yoonwootak.seatreservationapi.domain.SeatStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -8,5 +9,5 @@ import lombok.Getter;
 public class SeatResponse {
     private Long seatId;
     private Integer seatNo;
-    private boolean isAvailable;
+    private SeatStatus status;
 }
