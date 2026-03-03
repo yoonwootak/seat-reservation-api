@@ -47,4 +47,20 @@ public class Seat {
         this.holdToken = token;
         this.holdExpiresAt = LocalDateTime.now().plusMinutes(minutes);
     }
+
+    public void confirm(String token) {
+        if (this.status != SeatStatus.HELD) {
+            throw new IllegalStateException("좌석 선점 상태가 아닙니다.");
+        }
+        if (!this.holdToken.equals(token)) {
+            throw new IllegalStateException("좌석 선점 토큰이 일치하지 않습니다.");
+        }
+        if (this.holdExpiresAt.isBefore(LocalDateTime.now())) {
+            throw new IllegalStateException("좌석 선점 시간이 만료되었습니다.");
+        }
+
+        this.status = SeatStatus.SOLD;
+        this.holdToken = null;
+        this.holdExpiresAt = null;
+    }
 }

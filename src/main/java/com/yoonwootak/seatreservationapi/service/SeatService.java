@@ -26,4 +26,12 @@ public class SeatService {
 
         return new SeatHoldResponse(seat.getId(), token, seat.getHoldExpiresAt());
     }
+
+    @Transactional
+    public void confirmSeat(Long seatId, String token) {
+        Seat seat = seatRepository.findById(seatId)
+                .orElseThrow(() -> new IllegalArgumentException("좌석을 찾을 수 없습니다. id=" + seatId));
+
+        seat.confirm(token);
+    }
 }
