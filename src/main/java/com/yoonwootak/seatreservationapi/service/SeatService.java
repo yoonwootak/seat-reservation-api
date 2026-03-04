@@ -7,6 +7,7 @@ import com.yoonwootak.seatreservationapi.repository.SeatRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,13 +21,20 @@ public class SeatService {
 
     @Transactional
     public SeatHoldResponse holdSeat(Long seatId) {
-        Seat seat = seatRepository.findById(seatId)
-                .orElseThrow(() -> new IllegalArgumentException("좌석을 찾을 수 없습니다. id=" + seatId)); // seatId 에 해당하는 좌석이 없는 경우를 대비해 Optional 타입으로 반환. 예외처리 해야함
-
         String token = UUID.randomUUID().toString();
-        seat.hold(token, 7);
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime expiresAt = LocalDateTime.now().plusMinutes(7);
 
-        return new SeatHoldResponse(seat.getId(), token, seat.getHoldExpiresAt());
+        int updated = seatRepository.tryHoldAvailableOrExpired(seatId, token, expiresAt, now);
+
+        if (updated == 0) { // 선점 실패의 경우
+            if (!seatRepository.existsById(seatId)) {
+                throw new IllegalArgumentException("좌석을 찾을 수 없습니다. id=" + seatId);
+            }
+            throw new IllegalStateException("이미 다른 사용자가 선점 중입니다.");
+        }
+
+        return new SeatHoldResponse(seatId, token, expiresAt);
     }
 
     @Transactional
