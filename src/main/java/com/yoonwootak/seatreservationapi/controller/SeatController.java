@@ -1,9 +1,7 @@
 package com.yoonwootak.seatreservationapi.controller;
 
-import com.yoonwootak.seatreservationapi.domain.Seat;
 import com.yoonwootak.seatreservationapi.dto.SeatConfirmRequest;
 import com.yoonwootak.seatreservationapi.dto.SeatResponse;
-import com.yoonwootak.seatreservationapi.repository.SeatRepository;
 import com.yoonwootak.seatreservationapi.service.SeatService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,21 +11,15 @@ import java.util.List;
 @RestController
 @RequestMapping("/sections/{sectionId}/seats")
 public class SeatController {
-    private final SeatRepository seatRepository;
     private final SeatService seatService;
 
-    public SeatController(SeatRepository seatRepository, SeatService seatService) {
-        this.seatRepository = seatRepository;
+    public SeatController(SeatService seatService) {
         this.seatService = seatService;
     }
 
     @GetMapping
     public List<SeatResponse> list(@PathVariable Long sectionId) {
-        List<Seat> seats = seatRepository.findBySectionId(sectionId);
-
-        return seats.stream()
-                .map(s -> new SeatResponse(s.getId(), s.getSeatNo(), s.getStatus()))
-                .toList();
+        return seatService.listSeats(sectionId);
     }
 
     @PostMapping("/{seatId}/hold")
