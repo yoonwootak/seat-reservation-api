@@ -1,6 +1,6 @@
 package com.yoonwootak.seatreservationapi.controller;
 
-import com.yoonwootak.seatreservationapi.dto.SeatConfirmRequest;
+import com.yoonwootak.seatreservationapi.dto.SeatTokenRequest;
 import com.yoonwootak.seatreservationapi.dto.SeatResponse;
 import com.yoonwootak.seatreservationapi.service.SeatService;
 import org.springframework.http.ResponseEntity;
@@ -34,12 +34,26 @@ public class SeatController {
     }
 
     @PostMapping("/{seatId}/confirm")
-    public ResponseEntity<?> confirm(@PathVariable Long sectionId, @PathVariable Long seatId, @RequestBody SeatConfirmRequest req) {
+    public ResponseEntity<?> confirm(@PathVariable Long sectionId, @PathVariable Long seatId, @RequestBody SeatTokenRequest req) {
         try {
             seatService.confirmSeat(seatId, req.getHoldToken());
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok("좌석 확정 완료");
         } catch (IllegalStateException e) {
             return ResponseEntity.status(409).body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage()); // 400. 섹션, 좌석 id가 이상한 경우
+        }
+    }
+
+    @PostMapping("/{seatId}/release")
+    public ResponseEntity<?> release(@PathVariable Long sectionId, @PathVariable Long seatId, @RequestBody SeatTokenRequest req) {
+        try {
+            seatService.releaseSeat(seatId, req.getHoldToken());
+            return ResponseEntity.ok("좌석 선점 해제 완료");
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(409).body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 }

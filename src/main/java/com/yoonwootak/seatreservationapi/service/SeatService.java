@@ -20,6 +20,21 @@ public class SeatService {
     }
 
     @Transactional
+    public List<SeatResponse> listSeats(Long sectionId) {
+        List<Seat> seats = seatRepository.findBySectionId(sectionId);
+
+        // 조회 시점에 만료된 HELD 는 AVAILABLE 로 자동 해제
+        // releaseIfExpired가 update를 만들기 때문에 @Transactional 필요
+        for (Seat seat : seats) {
+            seat.releaseIfExpired();
+        }
+
+        return seats.stream()
+                .map(s -> new SeatResponse(s.getId(), s.getSeatNo(), s.getStatus()))
+                .toList();
+    }
+
+    @Transactional
     public SeatHoldResponse holdSeat(Long seatId) {
         String token = UUID.randomUUID().toString();
         LocalDateTime now = LocalDateTime.now();
@@ -46,17 +61,10 @@ public class SeatService {
     }
 
     @Transactional
-    public List<SeatResponse> listSeats(Long sectionId) {
-        List<Seat> seats = seatRepository.findBySectionId(sectionId);
+    public void releaseSeat(Long seatId, String token) {
+        Seat seat = seatRepository.findById(seatId)
+                .orElseThrow(() -> new IllegalArgumentException("좌석을 찾을 수 없습니다. id=" + seatId));
 
-        // 조회 시점에 만료된 HELD 는 AVAILABLE 로 자동 해제
-        // releaseIfExpired가 update를 만들기 때문에 @Transactional 필요
-        for (Seat seat : seats) {
-            seat.releaseIfExpired();
-        }
-
-        return seats.stream()
-                .map(s -> new SeatResponse(s.getId(), s.getSeatNo(), s.getStatus()))
-                .toList();
+        seat.releaseHold(token);
     }
 }
