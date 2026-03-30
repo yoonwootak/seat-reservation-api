@@ -73,15 +73,6 @@ stateDiagram-v2
 | POST | `/sections/{sectionId}/seats/{seatId}/confirm` | 좌석 예약 확정 |
 | POST | `/sections/{sectionId}/seats/{seatId}/release` | 좌석 선점 해제 |
 
-## 시스템 구조
-
-`Controller -> Service -> Repository -> Database`
-
-- `Controller`: HTTP 요청과 응답 처리
-- `Service`: 비즈니스 로직 수행 및 트랜잭션 경계 설정
-- `Repository`: DB 접근
-- `Database`: MySQL
-
 ## 문제 상황
 
 초기 구현은 `조회 -> 상태 확인 -> 상태 변경` 구조였습니다. 이 방식에서는 여러 요청이 동시에 같은 좌석을 `AVAILABLE` 상태로 읽을 수 있어, 동일 좌석에 여러 선점이 발생하는 Race Condition 문제가 있었습니다.
