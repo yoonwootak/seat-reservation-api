@@ -110,9 +110,35 @@ WHERE id = ?
 
 추가로, 만료된 `HELD` 좌석이 계속 남지 않도록 스케줄러를 도입해 주기적으로 정리했습니다.
 
+### 좌석 선점 처리 흐름
+```
+sequenceDiagram
+    participant U as User
+    participant S as SeatService
+    participant DB as Database
+
+    U->>S: 좌석 선점 요청
+    S->>DB: 조건부 UPDATE 실행
+    Note right of DB: status = AVAILABLE 또는 만료된 HELD
+
+    alt 선점 성공
+        DB-->>S: 1 row updated
+        S-->>U: 200 OK (HELD)
+    else 선점 실패
+        DB-->>S: 0 rows updated
+        S-->>U: 409 Conflict
+    end
+```
+
 ---
 
 ## 검증
+
+### 개선 전
+![개선 전 k6 테스트 결과](./images/k6-before.png)
+
+### 개선 후
+![개선 후 k6 테스트 결과](./images/k6-after.png)
 
 - 테스트 도구: k6
 - 대상 API: `POST /sections/{sectionId}/seats/{seatId}/hold`
@@ -120,7 +146,6 @@ WHERE id = ?
 - 개선 전: `200 성공 10건 / 409 충돌 90건`
 - 개선 후: `200 성공 1건 / 409 충돌 99건`
 - 총 요청 수: `100`
-- p95 latency: `2.35s`
 
 이미 선점된 좌석에 대한 요청은 `409 Conflict`로 반환되도록 처리했습니다.
 
