@@ -111,7 +111,7 @@ WHERE id = ?
 추가로, 만료된 `HELD` 좌석이 계속 남지 않도록 스케줄러를 도입해 주기적으로 정리했습니다.
 
 ### 좌석 선점 처리 흐름
-```
+```mermaid
 sequenceDiagram
     participant U as User
     participant S as SeatService
