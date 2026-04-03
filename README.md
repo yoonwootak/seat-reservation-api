@@ -89,16 +89,6 @@ stateDiagram-v2
 - `status = AVAILABLE`이면 선점 가능
 - `status = HELD`여도 `hold_expires_at < now`이면 다시 선점 가능
 
-```sql
-UPDATE seats
-SET status = 'HELD', hold_token = ?, hold_expires_at = ?
-WHERE id = ?
-  AND (
-    status = 'AVAILABLE'
-    OR (status = 'HELD' AND hold_expires_at < ?)
-  );
-```
-
 추가로, 만료된 `HELD` 좌석이 계속 남지 않도록 스케줄러를 도입해 주기적으로 정리했습니다.
 
 ### 좌석 선점 처리 흐름
