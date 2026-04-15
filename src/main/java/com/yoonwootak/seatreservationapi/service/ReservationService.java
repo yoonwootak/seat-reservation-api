@@ -6,6 +6,8 @@ import com.yoonwootak.seatreservationapi.repository.ReservationRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 @Service
 public class ReservationService {
     private final ReservationRepository reservationRepository;
@@ -16,8 +18,14 @@ public class ReservationService {
 
     @Transactional
     public Reservation createReservation(ReservationCreateRequest req) {
-        Reservation r = new Reservation(req.getEventId(), req.getSectionId(), req.getSeatId());
+        LocalDateTime holdExpiresAt = LocalDateTime.now().plusMinutes(5);
 
-        return reservationRepository.save(r);
+        Reservation reservation = new Reservation(
+                req.getUserId(),
+                req.getSeatId(),
+                holdExpiresAt
+        );
+
+        return reservationRepository.save(reservation);
     }
 }

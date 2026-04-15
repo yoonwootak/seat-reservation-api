@@ -25,14 +25,4 @@ public class ReservationController {
             return ResponseEntity.status(409).body("이미 예약된 좌석입니다.");
         }
     }
-
-    // 동시성 테스트용 예약 api : Request body 에서 요청을 받는게 아닌 테스트용 요청을 직접 만들어서 return
-    @PostMapping("/test/{seatId}")
-    public ResponseEntity<?> createTest(@PathVariable Long seatId){
-        ReservationCreateRequest req = new ReservationCreateRequest();
-        req.setEventId(1L);
-        req.setSectionId(1L);
-        req.setSeatId(seatId);
-        return create(req);
-    }
 }

@@ -13,44 +13,42 @@ public class Reservation {
     private Long id;
 
     @Column(nullable = false)
-    private Long eventId;
-
-    @Column(nullable = false)
-    private Long sectionId;
+    private Long userId;
 
     @Column(nullable = false)
     private Long seatId;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ReservationStatus status; // PENDING_PAYMENT, CANCELLED
+    private ReservationStatus status;
+
+    @Column(nullable = false)
+    private LocalDateTime holdExpiresAt;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
+    @Column(nullable = false)
+    private LocalDateTime updatedAt;
+
     protected Reservation() {} // 기본 생성자
 
-    public Reservation(Long eventId, Long sectionId, Long seatId) {
-        this.eventId = eventId;
-        this.sectionId = sectionId;
+    public Reservation(Long userId, Long seatId, LocalDateTime holdExpiresAt) {
+        this.userId = userId;
         this.seatId = seatId;
-        this.status = ReservationStatus.PENDING_PAYMENT;
+        this.status = ReservationStatus.HELD;
+        this.holdExpiresAt = holdExpiresAt;
     }
-
-// TODO: 예약 취소 기능 추후 구현 예정
-//    public void cancel() {
-//        if (this.status == ReservationStatus.CANCELLED) {
-//            throw new IllegalStateException("이미 취소된 예약입니다.");
-//        }
-//        if (this.status == ReservationStatus.CONFIRMED) {
-//            throw new IllegalStateException("확정된 예약은 취소할 수 없습니다."); // 확정된 예약 취소 구현 필요
-//        }
-//        this.status = ReservationStatus.CANCELLED;
-//        this.confirmedSeatId = null;
-//    }
 
     @PrePersist
     private void prePersist() {
-        this.createdAt = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now();
+        this.createdAt = now;
+        this.updatedAt = now;
+    }
+
+    @PreUpdate
+    private void preUpdate() {
+        this.updatedAt = LocalDateTime.now();
     }
 }
