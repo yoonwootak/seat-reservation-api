@@ -36,28 +36,4 @@ public class SeatController {
             return ResponseEntity.badRequest().body(e.getMessage()); // 400. 좌석 id가 이상한 경우
         }
     }
-
-    @PostMapping("/{seatId}/confirm")
-    public ResponseEntity<?> confirm(@PathVariable Long sectionId, @PathVariable Long seatId) {
-        try {
-            seatService.confirmSeat(seatId);
-            return ResponseEntity.ok("좌석 확정 완료");
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(409).body(e.getMessage());
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage()); // 400. 섹션, 좌석 id가 이상한 경우
-        }
-    }
-
-    @PostMapping("/{seatId}/release")
-    public ResponseEntity<?> release(@PathVariable Long sectionId, @PathVariable Long seatId) {
-        try {
-            seatService.releaseSeat(seatId);
-            return ResponseEntity.ok("좌석 선점 해제 완료");
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(409).body(e.getMessage());
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
 }

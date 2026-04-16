@@ -54,20 +54,4 @@ public class SeatService {
 
         return new SeatHoldResponse(saved.getId(), holdExpiresAt);
     }
-
-    @Transactional
-    public void confirmSeat(Long seatId) {
-        Seat seat = seatRepository.findById(seatId)
-                .orElseThrow(() -> new IllegalArgumentException("좌석을 찾을 수 없습니다. id=" + seatId));
-
-        seat.markSold();
-    }
-
-    @Transactional
-    public void releaseSeat(Long seatId) {
-        Seat seat = seatRepository.findById(seatId)
-                .orElseThrow(() -> new IllegalArgumentException("좌석을 찾을 수 없습니다. id=" + seatId));
-
-        seat.markAvailable();
-    }
 }

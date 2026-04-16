@@ -27,4 +27,16 @@ public class ReservationController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    @PostMapping("/{reservationId}/cancel")
+    public ResponseEntity<?> cancel(@PathVariable Long reservationId) {
+        try {
+            reservationService.cancelReservation(reservationId);
+            return ResponseEntity.ok("예약 취소 완료");
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(409).body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }

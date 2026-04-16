@@ -48,6 +48,22 @@ public class Reservation {
         this.status = ReservationStatus.CONFIRMED;
     }
 
+    public void cancel() {
+        if (this.status != ReservationStatus.HELD) {
+            throw new IllegalStateException("선점 상태인 예약만 취소할 수 있습니다.");
+        }
+
+        this.status = ReservationStatus.CANCELLED;
+    }
+
+    public void expire() {
+        if (this.status != ReservationStatus.HELD) {
+            throw new IllegalStateException("선점 상태인 예약만 만료 처리할 수 있습니다.");
+        }
+
+        this.status = ReservationStatus.EXPIRED;
+    }
+
     @PrePersist
     private void prePersist() {
         LocalDateTime now = LocalDateTime.now();
