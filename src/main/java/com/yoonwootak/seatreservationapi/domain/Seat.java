@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @Entity
@@ -28,11 +30,29 @@ public class Seat {
     @Column(nullable = false)
     private SeatStatus status = SeatStatus.AVAILABLE;
 
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
+
+    @Column(nullable = false)
+    private LocalDateTime updatedAt;
+
     protected Seat() {}
 
     public Seat(Long sectionId, Integer seatNo) {
         this.sectionId = sectionId;
         this.seatNo = seatNo;
+    }
+
+    @PrePersist
+    private void prePersist() {
+        LocalDateTime now = LocalDateTime.now();
+        this.createdAt = now;
+        this.updatedAt = now;
+    }
+
+    @PreUpdate
+    private void preUpdate() {
+        this.updatedAt = LocalDateTime.now();
     }
 
     public void markHeld() {
