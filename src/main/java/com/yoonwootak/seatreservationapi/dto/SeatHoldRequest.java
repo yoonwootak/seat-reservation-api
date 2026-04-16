@@ -5,6 +5,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class SeatTokenRequest {
-    private String holdToken;
+public class SeatHoldRequest {
+    private Long userId;
 }

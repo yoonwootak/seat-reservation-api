@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 @Getter
 @AllArgsConstructor
 public class SeatHoldResponse {
-    private Long seatId;
-    private String holdToken;
+    private Long reservationId;
     private LocalDateTime holdExpiresAt;
 }

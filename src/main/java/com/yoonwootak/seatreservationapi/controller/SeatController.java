@@ -1,6 +1,6 @@
 package com.yoonwootak.seatreservationapi.controller;
 
-import com.yoonwootak.seatreservationapi.dto.SeatTokenRequest;
+import com.yoonwootak.seatreservationapi.dto.SeatHoldRequest;
 import com.yoonwootak.seatreservationapi.dto.SeatResponse;
 import com.yoonwootak.seatreservationapi.service.SeatService;
 import org.springframework.http.ResponseEntity;
@@ -23,20 +23,24 @@ public class SeatController {
     }
 
     @PostMapping("/{seatId}/hold")
-    public ResponseEntity<?> hold(@PathVariable Long sectionId, @PathVariable Long seatId) {
+    public ResponseEntity<?> hold(
+            @PathVariable Long sectionId,
+            @PathVariable Long seatId,
+            @RequestBody SeatHoldRequest req
+    ) {
         try {
-            return ResponseEntity.ok(seatService.holdSeat(seatId));
+            return ResponseEntity.ok(seatService.holdSeat(req.getUserId(), seatId));
         } catch (IllegalStateException e) {
             return ResponseEntity.status(409).body(e.getMessage()); // 이미 판매가 된 좌석 또는 이미 다른 사용자가 선점 중인 좌석인 경우
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage()); // 400. 섹션, 좌석 id가 이상한 경우
+            return ResponseEntity.badRequest().body(e.getMessage()); // 400. 좌석 id가 이상한 경우
         }
     }
 
     @PostMapping("/{seatId}/confirm")
-    public ResponseEntity<?> confirm(@PathVariable Long sectionId, @PathVariable Long seatId, @RequestBody SeatTokenRequest req) {
+    public ResponseEntity<?> confirm(@PathVariable Long sectionId, @PathVariable Long seatId) {
         try {
-            seatService.confirmSeat(seatId, req.getHoldToken());
+            seatService.confirmSeat(seatId);
             return ResponseEntity.ok("좌석 확정 완료");
         } catch (IllegalStateException e) {
             return ResponseEntity.status(409).body(e.getMessage());
@@ -46,9 +50,9 @@ public class SeatController {
     }
 
     @PostMapping("/{seatId}/release")
-    public ResponseEntity<?> release(@PathVariable Long sectionId, @PathVariable Long seatId, @RequestBody SeatTokenRequest req) {
+    public ResponseEntity<?> release(@PathVariable Long sectionId, @PathVariable Long seatId) {
         try {
-            seatService.releaseSeat(seatId, req.getHoldToken());
+            seatService.releaseSeat(seatId);
             return ResponseEntity.ok("좌석 선점 해제 완료");
         } catch (IllegalStateException e) {
             return ResponseEntity.status(409).body(e.getMessage());

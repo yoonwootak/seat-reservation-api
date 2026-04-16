@@ -16,9 +16,7 @@ public class AdminSeatController {
     @PostMapping("/generate")
     public String generateSeats(@PathVariable Long sectionId, @RequestParam int count) {
         for (int i = 1; i <= count; i++) {
-            Seat seat = new Seat();
-            seat.setSectionId(sectionId);
-            seat.setSeatNo(i);
+            Seat seat = new Seat(sectionId, i);
             seatRepository.save(seat);
         }
         return "generated " + count;
