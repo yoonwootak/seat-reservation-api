@@ -40,6 +40,14 @@ public class Reservation {
         this.holdExpiresAt = holdExpiresAt;
     }
 
+    public void confirm() {
+        if (this.status != ReservationStatus.HELD) {
+            throw new IllegalStateException("선점 상태인 예약만 확정할 수 있습니다.");
+        }
+
+        this.status = ReservationStatus.CONFIRMED;
+    }
+
     @PrePersist
     private void prePersist() {
         LocalDateTime now = LocalDateTime.now();
