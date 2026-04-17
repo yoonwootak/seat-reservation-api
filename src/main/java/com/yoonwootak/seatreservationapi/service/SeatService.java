@@ -3,10 +3,12 @@ package com.yoonwootak.seatreservationapi.service;
 import com.yoonwootak.seatreservationapi.domain.Reservation;
 import com.yoonwootak.seatreservationapi.domain.Seat;
 import com.yoonwootak.seatreservationapi.domain.SeatStatus;
+import com.yoonwootak.seatreservationapi.domain.User;
 import com.yoonwootak.seatreservationapi.dto.SeatHoldResponse;
 import com.yoonwootak.seatreservationapi.dto.SeatResponse;
 import com.yoonwootak.seatreservationapi.repository.ReservationRepository;
 import com.yoonwootak.seatreservationapi.repository.SeatRepository;
+import com.yoonwootak.seatreservationapi.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,13 +19,15 @@ import java.util.List;
 public class SeatService {
     private final SeatRepository seatRepository;
     private final ReservationRepository reservationRepository;
+    private final UserRepository userRepository;
 
-    public SeatService(SeatRepository seatRepository, ReservationRepository reservationRepository) {
+    public SeatService(SeatRepository seatRepository, ReservationRepository reservationRepository, UserRepository userRepository) {
         this.seatRepository = seatRepository;
         this.reservationRepository = reservationRepository;
+        this.userRepository = userRepository;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<SeatResponse> listSeats(Long sectionId) {
         List<Seat> seats = seatRepository.findBySectionId(sectionId);
 
@@ -34,6 +38,9 @@ public class SeatService {
 
     @Transactional
     public SeatHoldResponse holdSeat(Long userId, Long seatId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. id=" + userId));
+
         Seat seat = seatRepository.findById(seatId)
                 .orElseThrow(() -> new IllegalArgumentException("좌석을 찾을 수 없습니다. id=" + seatId));
 
@@ -47,7 +54,7 @@ public class SeatService {
 
         LocalDateTime holdExpiresAt = LocalDateTime.now().plusMinutes(5);
 
-        Reservation reservation = new Reservation(userId, seatId, holdExpiresAt);
+        Reservation reservation = new Reservation(user, seat, holdExpiresAt);
         Reservation saved = reservationRepository.save(reservation);
 
         seat.markHeld();

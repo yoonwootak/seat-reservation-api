@@ -9,14 +9,17 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "reservations")
 public class Reservation {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-    @Column(nullable = false)
-    private Long seatId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "seat_id", nullable = false)
+    private Seat seat;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -33,9 +36,9 @@ public class Reservation {
 
     protected Reservation() {} // 기본 생성자
 
-    public Reservation(Long userId, Long seatId, LocalDateTime holdExpiresAt) {
-        this.userId = userId;
-        this.seatId = seatId;
+    public Reservation(User user, Seat seat, LocalDateTime holdExpiresAt) {
+        this.user = user;
+        this.seat = seat;
         this.status = ReservationStatus.HELD;
         this.holdExpiresAt = holdExpiresAt;
     }

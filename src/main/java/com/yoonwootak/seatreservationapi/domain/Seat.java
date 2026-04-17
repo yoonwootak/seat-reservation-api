@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Table(
         name = "seats",
         uniqueConstraints = {
-                @UniqueConstraint(name = "uk_seats_section_seatno", columnNames = {"sectionId", "seatNo"}) // unique key for seats(sectionId, seatno)
+                @UniqueConstraint(name = "uk_seats_section_seatno", columnNames = {"section_id", "seat_no"}) // unique key for seats(sectionId, seatno)
         }
 )
 public class Seat {
@@ -20,8 +20,9 @@ public class Seat {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private Long sectionId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "section_id", nullable = false)
+    private Section section;
 
     @Column(nullable = false)
     private Integer seatNo;
@@ -38,8 +39,8 @@ public class Seat {
 
     protected Seat() {}
 
-    public Seat(Long sectionId, Integer seatNo) {
-        this.sectionId = sectionId;
+    public Seat(Section section, Integer seatNo) {
+        this.section = section;
         this.seatNo = seatNo;
     }
 

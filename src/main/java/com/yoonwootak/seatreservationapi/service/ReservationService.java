@@ -30,8 +30,8 @@ public class ReservationService {
             throw new IllegalStateException("선점 시간이 만료된 예약입니다.");
         }
 
-        Seat seat = seatRepository.findById(reservation.getSeatId())
-                .orElseThrow(() -> new IllegalArgumentException("좌석을 찾을 수 없습니다. id=" + reservation.getSeatId()));
+        Seat seat = seatRepository.findById(reservation.getSeat().getId())
+                .orElseThrow(() -> new IllegalArgumentException("좌석을 찾을 수 없습니다. id=" + reservation.getSeat().getId()));
 
         reservation.confirm();
         seat.markSold();
@@ -46,8 +46,8 @@ public class ReservationService {
             throw new IllegalStateException("선점 상태의 예약만 취소할 수 있습니다.");
         }
 
-        Seat seat = seatRepository.findById(reservation.getSeatId())
-                .orElseThrow(() -> new IllegalArgumentException("좌석을 찾을 수 없습니다. id=" + reservation.getSeatId()));
+        Seat seat = seatRepository.findById(reservation.getSeat().getId())
+                .orElseThrow(() -> new IllegalArgumentException("좌석을 찾을 수 없습니다. id=" + reservation.getSeat().getId()));
 
         if (reservation.getHoldExpiresAt().isBefore(LocalDateTime.now())) {
             reservation.expire();
