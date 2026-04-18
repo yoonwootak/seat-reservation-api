@@ -43,28 +43,40 @@ public class Reservation {
         this.holdExpiresAt = holdExpiresAt;
     }
 
-    public void confirm() {
+    public void startPayment() {
         if (this.status != ReservationStatus.HELD) {
-            throw new IllegalStateException("선점 상태인 예약만 확정할 수 있습니다.");
+            throw new IllegalStateException("HELD 상태의 예약만 결제를 시작할 수 있습니다.");
+        }
+
+        this.status = ReservationStatus.PAYMENT_PENDING;
+    }
+
+    public void confirm() {
+        if (this.status != ReservationStatus.PAYMENT_PENDING) {
+            throw new IllegalStateException("PAYMENT_PENDING 상태의 예약만 확정할 수 있습니다.");
         }
 
         this.status = ReservationStatus.CONFIRMED;
     }
 
     public void cancel() {
-        if (this.status != ReservationStatus.HELD) {
-            throw new IllegalStateException("선점 상태인 예약만 취소할 수 있습니다.");
+        if (this.status != ReservationStatus.HELD && this.status != ReservationStatus.PAYMENT_PENDING) {
+            throw new IllegalStateException("활성 상태의 예약만 취소할 수 있습니다.");
         }
 
         this.status = ReservationStatus.CANCELLED;
     }
 
     public void expire() {
-        if (this.status != ReservationStatus.HELD) {
-            throw new IllegalStateException("선점 상태인 예약만 만료 처리할 수 있습니다.");
+        if (this.status != ReservationStatus.HELD && this.status != ReservationStatus.PAYMENT_PENDING) {
+            throw new IllegalStateException("활성 상태의 예약만 만료 처리할 수 있습니다.");
         }
 
         this.status = ReservationStatus.EXPIRED;
+    }
+
+    public boolean isExpiredAt(LocalDateTime now) {
+        return this.holdExpiresAt.isBefore(now);
     }
 
     @PrePersist

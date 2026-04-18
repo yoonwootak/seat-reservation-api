@@ -16,6 +16,18 @@ public class ReservationController {
         this.reservationService = reservationService;
     }
 
+    @PostMapping("/{reservationId}/start-payment")
+    public ResponseEntity<?> startPayment(@PathVariable Long reservationId) {
+        try {
+            reservationService.startPayment(reservationId);
+            return ResponseEntity.ok("결제 시작 완료");
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(409).body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     @PostMapping("/{reservationId}/confirm")
     public ResponseEntity<?> confirm(@PathVariable Long reservationId) {
         try {
