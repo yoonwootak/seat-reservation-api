@@ -21,7 +21,7 @@ public class ReservationService {
         this.seatRepository = seatRepository;
     }
 
-    @Transactional
+    @Transactional(noRollbackFor = ReservationExpiredException.class)
     public void startPayment(Long reservationId) {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new IllegalArgumentException("예약을 찾을 수 없습니다. id=" + reservationId));
@@ -40,13 +40,13 @@ public class ReservationService {
         if (reservation.isExpiredAt(LocalDateTime.now())) {
             reservation.expire();
             seat.markAvailable();
-            throw new IllegalStateException("선점 시간이 만료된 예약입니다.");
+            throw new ReservationExpiredException("선점 시간이 만료된 예약입니다.");
         }
 
         reservation.startPayment();
     }
 
-    @Transactional
+    @Transactional(noRollbackFor = ReservationExpiredException.class)
     public void confirmReservation(Long reservationId) {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new IllegalArgumentException("예약을 찾을 수 없습니다. id=" + reservationId));
@@ -65,14 +65,14 @@ public class ReservationService {
         if (reservation.isExpiredAt(LocalDateTime.now())) {
             reservation.expire();
             seat.markAvailable();
-            throw new IllegalStateException("선점 시간이 만료된 예약입니다.");
+            throw new ReservationExpiredException("선점 시간이 만료된 예약입니다.");
         }
 
         reservation.confirm();
         seat.markSold();
     }
 
-    @Transactional
+    @Transactional(noRollbackFor = ReservationExpiredException.class)
     public void cancelReservation(Long reservationId) {
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new IllegalArgumentException("예약을 찾을 수 없습니다. id=" + reservationId));
@@ -91,7 +91,7 @@ public class ReservationService {
         if (reservation.isExpiredAt(LocalDateTime.now())) {
             reservation.expire();
             seat.markAvailable();
-            throw new IllegalStateException("선점 시간이 만료된 예약입니다.");
+            throw new ReservationExpiredException("선점 시간이 만료된 예약입니다.");
         }
 
         reservation.cancel();

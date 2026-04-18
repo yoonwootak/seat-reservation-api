@@ -1,5 +1,6 @@
 package com.yoonwootak.seatreservationapi.controller;
 
+import com.yoonwootak.seatreservationapi.service.ReservationExpiredException;
 import com.yoonwootak.seatreservationapi.service.ReservationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,6 +22,8 @@ public class ReservationController {
         try {
             reservationService.startPayment(reservationId);
             return ResponseEntity.ok("결제 시작 완료");
+        } catch (ReservationExpiredException e) {
+            return ResponseEntity.status(409).body(e.getMessage());
         } catch (IllegalStateException e) {
             return ResponseEntity.status(409).body(e.getMessage());
         } catch (IllegalArgumentException e) {
@@ -33,6 +36,8 @@ public class ReservationController {
         try {
             reservationService.confirmReservation(reservationId);
             return ResponseEntity.ok("예약 확정 완료");
+        } catch (ReservationExpiredException e) {
+            return ResponseEntity.status(409).body(e.getMessage());
         } catch (IllegalStateException e) {
             return ResponseEntity.status(409).body(e.getMessage());
         } catch (IllegalArgumentException e) {
@@ -45,6 +50,8 @@ public class ReservationController {
         try {
             reservationService.cancelReservation(reservationId);
             return ResponseEntity.ok("예약 취소 완료");
+        } catch (ReservationExpiredException e) {
+            return ResponseEntity.status(409).body(e.getMessage());
         } catch (IllegalStateException e) {
             return ResponseEntity.status(409).body(e.getMessage());
         } catch (IllegalArgumentException e) {
