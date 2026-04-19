@@ -37,12 +37,12 @@ public class SeatService {
     }
 
     @Transactional
-    public SeatHoldResponse holdSeat(Long userId, Long seatId) {
+    public SeatHoldResponse holdSeat(Long userId, Long sectionId, Long seatId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. id=" + userId));
 
-        Seat seat = seatRepository.findById(seatId)
-                .orElseThrow(() -> new IllegalArgumentException("좌석을 찾을 수 없습니다. id=" + seatId));
+        Seat seat = seatRepository.findByIdAndSectionId(seatId, sectionId)
+                .orElseThrow(() -> new SeatNotFoundException(sectionId, seatId));
 
         if (seat.getStatus() == SeatStatus.SOLD) {
             throw new IllegalStateException("이미 판매된 좌석 입니다.");

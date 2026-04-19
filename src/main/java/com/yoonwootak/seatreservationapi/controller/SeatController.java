@@ -2,6 +2,7 @@ package com.yoonwootak.seatreservationapi.controller;
 
 import com.yoonwootak.seatreservationapi.dto.SeatHoldRequest;
 import com.yoonwootak.seatreservationapi.dto.SeatResponse;
+import com.yoonwootak.seatreservationapi.service.SeatNotFoundException;
 import com.yoonwootak.seatreservationapi.service.SeatService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +30,9 @@ public class SeatController {
             @RequestBody SeatHoldRequest req
     ) {
         try {
-            return ResponseEntity.ok(seatService.holdSeat(req.getUserId(), seatId));
+            return ResponseEntity.ok(seatService.holdSeat(req.getUserId(), sectionId, seatId));
+        } catch (SeatNotFoundException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
         } catch (IllegalStateException e) {
             return ResponseEntity.status(409).body(e.getMessage()); // 이미 판매가 된 좌석 또는 이미 다른 사용자가 선점 중인 좌석인 경우
         } catch (IllegalArgumentException e) {
